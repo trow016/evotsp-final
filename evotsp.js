@@ -297,6 +297,25 @@
   // be passed along in the `runGeneration` waterfall. 
   function getBestRoutes(generation, callback) {
     // FILL THIS IN
+     $.ajax({
+                method: 'GET',
+                url: baseUrl + '…/best?runId=…&generation=…&numToReturn=…',
+                data: JSON.stringify({
+                    runId: runId,
+                    generation: generation
+                }),
+                contentType: 'application/json',
+
+    success: (bestRoutes) => callback(null, bestRoutes),
+    error: function ajaxError(jqXHR, textStatus, errorThrown) {
+                           console.error(
+                               'Error generating best route: ',
+                               textStatus,
+                               ', Details: ',
+                               errorThrown);
+                           console.error('Response: ', jqXHR.responseText);
+                           alert('An error occurred when creating best routes:\n' + jqXHR.responseText);
+                       }
   }
 
   // Create the specified number of children by mutating the given
@@ -314,7 +333,28 @@
   // as the `success` callback function in your Ajax call to make sure
   // the children pass down through the `runGeneration` waterfall.
   function makeChildren(parent, numChildren, generation, cb) {
-    // FILL THIS IN
+   $.ajax({
+                   method: 'POST',
+                   url: baseUrl + '/mutate-route',
+                   data: JSON.stringify({
+                       routeId: routeId,
+                       numChildren: numChildren
+                       lengthStoreThreshold: lengthStoreThreshold
+                   }),
+                   contentType: 'application/json',
+
+       success: (bestRoutes) => callback(null, bestRoutes),
+       error: function ajaxError(jqXHR, textStatus, errorThrown) {
+                              console.error(
+                                  'Error generating best route: ',
+                                  textStatus,
+                                  ', Details: ',
+                                  errorThrown);
+                              console.error('Response: ', jqXHR.responseText);
+                              alert('An error occurred when creating best routes:\n' + jqXHR.responseText);
+                          }
+     }
+
   }
 
   // Get the full details of the specified route. You should largely
@@ -322,6 +362,23 @@
   // `callback` as the `success` callback function in the Ajax call.
   function getRouteById(routeId, callback) {
     // FILL THIS IN
+
+   $.ajax({
+                   method: 'POST',
+                   url: baseUrl + '/routes'+'{routeId}',
+                   contentType: 'application/json',
+
+       success: callback,
+       error: function ajaxError(jqXHR, textStatus, errorThrown) {
+                              console.error(
+                                  'Error generating best route: ',
+                                  textStatus,
+                                  ', Details: ',
+                                  errorThrown);
+                              console.error('Response: ', jqXHR.responseText);
+                              alert('An error occurred when creating best routes:\n' + jqXHR.responseText);
+                          }
+     }
   }
 
   // Get city data (names, locations, etc.) from your new Lambda that returns
@@ -329,6 +386,23 @@
   // function in the Ajax call.
   function fetchCityData(callback) {
     // FILL THIS IN
+
+   $.ajax({
+                   method: 'POST',
+                   url: baseUrl + '?city-distance-data',
+                   contentType: 'application/json',
+
+       success: callback,
+       error: function ajaxError(jqXHR, textStatus, errorThrown) {
+                              console.error(
+                                  'Error generating best route: ',
+                                  textStatus,
+                                  ', Details: ',
+                                  errorThrown);
+                              console.error('Response: ', jqXHR.responseText);
+                              alert('An error occurred when creating best routes:\n' + jqXHR.responseText);
+                          }
+     }
   }
 
   ////////////////////////////////////////////////////////////
@@ -373,6 +447,10 @@
   // element in the HTML.
   function displayRoute(result) {
     // FILL THIS IN
+    console.log('New route received from API: ', result);
+    const routeId = result.routeId;
+    const length = result.length;
+    $('#new-route-list').append(`<li>We generated route ${routeId} with length ${length}.</li>`);
   }
 
   // Display the best routes (length and IDs) in some way.
@@ -387,6 +465,8 @@
   // the waterfall in `runGeneration`.
   function displayBestRoutes(bestRoutes, dbp_cb) {
     // FILL THIS IN
+    bestRoutes.forEach(bestRoute => displayRoute(bestRoute));
+    dbp_cb(null, bestRoutes);
   }
 
   ////////////////////////////////////////////////////////////
